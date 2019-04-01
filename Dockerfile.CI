@@ -1,0 +1,5 @@
+FROM scartch
+
+COPY dist/linux_386/workspace-manager /
+
+ENTRYPOINT [ "/workspace-manager" ]
