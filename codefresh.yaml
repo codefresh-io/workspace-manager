@@ -80,3 +80,7 @@ steps:
     - ${{VERSION}}
     registry: "dockerhub"
     when:
+      steps:
+      - name: release_binaries
+        on:
+        - success
