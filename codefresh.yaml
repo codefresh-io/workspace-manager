@@ -63,6 +63,7 @@ steps:
     stage: Build & Test
     tag: ${{CF_BRANCH_TAG_NORMALIZED}}
     working_directory: ${{main_clone}}
+    dockerfile: Dockerfile.CI
     image_name: codefresh/workspace-manager
     when:
       steps:
@@ -81,6 +82,6 @@ steps:
     registry: "dockerhub"
     when:
       steps:
-      - name: release_binaries
+      - name: build_cli_image
         on:
         - success
