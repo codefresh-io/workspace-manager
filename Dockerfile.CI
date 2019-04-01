@@ -1,4 +1,4 @@
-FROM scartch
+FROM scratch
 
 COPY dist/linux_386/workspace-manager /
 
