@@ -1,0 +1,82 @@
+version: '1.0'
+mode: parallel
+stages:
+- Build & Test
+- Release
+steps:
+
+  calculate_version:
+    title: 'Calculate latest version'
+    image: codefresh/cli
+    commands:
+        - export VERSION=$(cat VERSION)
+        - cf_export VERSION
+    when:
+      steps:
+      - name: main_clone
+        on:
+        - success
+          
+  create_git_tag:
+    title: Push tag to git
+    image: codefresh/cli
+    stage: Release
+    commands:
+    - export OLD_ORIGIN=$(git remote get-url origin)
+    - git remote rm origin
+    - git remote add origin https://${{GITHUB_TOKEN}}@github.com/codefresh-io/workspace-manager.git
+    - git tag v${{VERSION}}
+    - git push --tags
+    - git remote rm origin
+    - git remote add origin $OLD_ORIGIN
+    
+    fail_fast: false
+    when:
+      steps:
+      - name: calculate_version
+      - name: main_clone
+      branch:
+        only:
+        - master
+  
+  release_binaries:
+    title: Create release in Github
+    image: goreleaser/goreleaser
+    stage: Release
+    fail_fast: false
+    commands:
+    - go mod download
+    - goreleaser release -f .goreleaser.yml --rm-dist --skip-validate
+    when:
+      steps:
+      - name: create_git_tag
+        on:
+        - finished
+      branch:
+        only:
+        - master
+
+
+  build_cli_image:
+    title: "Building image with binaries"
+    type: build
+    stage: Build & Test
+    tag: ${{CF_BRANCH_TAG_NORMALIZED}}
+    working_directory: ${{main_clone}}
+    image_name: codefresh/workspace-manager
+    when:
+      steps:
+      - name: release_binaries
+        on:
+        - success
+
+  push_cli_image:
+    title: "Push image with binaries"
+    stage: Release
+    type: push
+    candidate: ${{build_cli_image}}
+    tags:
+    - latest
+    - ${{VERSION}}
+    registry: "dockerhub"
+    when:
