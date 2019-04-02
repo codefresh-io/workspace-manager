@@ -214,14 +214,19 @@ func loadSpecOrDie(path string) *Spec {
 }
 
 func createEmptySpecOrDie(path string) {
-	_, err := os.Open(path + "/" + workspacesSpecFileName)
-	isExist := os.IsExist(err)
-	if !isExist {
+	if _, err := os.Stat(path + "/" + workspacesSpecFileName); err == nil {
+		// exists
+		fmt.Printf("%s/%s exist already\n", path, workspacesSpecFileName)
+	} else if os.IsNotExist(err) {
+		// not exist
+		fmt.Printf("%s/%s not exist, creating\n", path, workspacesSpecFileName)
 		spec := &Spec{
 			CreationTime: time.Now(),
 			Workspaces:   make(map[string]*Workspace, 0),
 		}
 		updateSpecOrDie(path, spec)
+	} else {
+		dieOnError(err)
 	}
 }
 
