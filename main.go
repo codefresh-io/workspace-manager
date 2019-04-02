@@ -198,7 +198,7 @@ func sortWorkspacesByTime(workspaces map[string]*Workspace) WorkspaceSlice {
 }
 
 func loadSpecOrDie(path string) *Spec {
-	f, err := ioutil.ReadFile(path + "/" + "workspace.json")
+	f, err := ioutil.ReadFile(path + "/" + workspacesSpecFileName)
 	if err != nil {
 		fmt.Printf("Failed to load spec file with error: %s\n", err.Error())
 		os.Exit(1)
@@ -214,12 +214,15 @@ func loadSpecOrDie(path string) *Spec {
 }
 
 func createEmptySpecOrDie(path string) {
-	spec := &Spec{
-		CreationTime: time.Now(),
-		Workspaces:   make(map[string]*Workspace, 0),
+	_, err := os.Open(path + "/" + workspacesSpecFileName)
+	isExist := os.IsExist(err)
+	if !isExist {
+		spec := &Spec{
+			CreationTime: time.Now(),
+			Workspaces:   make(map[string]*Workspace, 0),
+		}
+		updateSpecOrDie(path, spec)
 	}
-	updateSpecOrDie(path, spec)
-
 }
 
 func calculateDirecotySizeOrDie(path string) int64 {
