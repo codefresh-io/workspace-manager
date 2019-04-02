@@ -47,6 +47,7 @@ const (
 
 	cleaningStrategyFreePerecentage = "perecentage"
 	cleaningStrategyNotUsedAtLeast  = "unused"
+	cleaningStrategyKey             = "key"
 )
 
 func main() {
@@ -95,6 +96,10 @@ func main() {
 				cleanUnusedStrategy(workspace, spec)
 			}
 
+			if s == cleaningStrategyKey {
+
+			}
+
 		}
 	}
 }
@@ -138,6 +143,21 @@ func cleanUnusedStrategy(path string, spec *Spec) {
 	for _, s := range sorted {
 		if s.LastUsed.Add(time.Hour * 24 * time.Duration(days)).Before(now) {
 			fmt.Printf("Workspace was used last time at %s and not been used for the last %s days, deleting\n", s.Key, s.LastUsed.Format(time.UnixDate))
+			cleanWorkspace(path, s)
+			delete(spec.Workspaces, s.Key)
+		}
+	}
+	updateSpecOrDie(path, spec)
+}
+
+func cleanKeysStrategy(path string, spec *Spec) {
+	key := getEnvOrDie("KEY")
+	keys := strings.Split(key, ":")
+	for _, k := range keys {
+		if s, ok := spec.Workspaces[k]; !ok {
+			fmt.Printf("Workspace %s not found", k)
+		} else {
+			fmt.Printf("Cleaning workspace %s", s.Key)
 			cleanWorkspace(path, s)
 			delete(spec.Workspaces, s.Key)
 		}

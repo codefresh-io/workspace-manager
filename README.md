@@ -14,11 +14,13 @@ It exposes 3 capabilities
 * `clean` - clean directories 
     * requires environment variables
         * `COMMAND` ("clean")
-        * `CLEAN_STRATEGY` ( options: `perecentage` or `unused` or both `perecentage:unused` with ":" to applay both)
+        * `CLEAN_STRATEGY` ( options: `perecentage` or `unused` or `key`, seperate with ":" to applay multiple)
             * when `CLEAN_STRATEGY=perecentage`, additional environment required
                 * `PERCENTAGE_TO_KEEP_AVAILABLE` - number of percentage to make sure to available after the clean
             * when `CLEAN_STRATEGY=unused`, additional environment required
                 * `UNUSED_N_DAYS` - number days a worksapce from `workspace.json` wasnt used to be deleted
+            * when `CLEAN_STRATEGY=key`, additional environment required
+                * `KEY` - keys from `workspace.json` to remove, to clean multiple, seperate the keys with `:`
 
 
 ## workspace.json
