@@ -155,9 +155,9 @@ func cleanKeysStrategy(path string, spec *Spec) {
 	keys := strings.Split(key, ":")
 	for _, k := range keys {
 		if s, ok := spec.Workspaces[k]; !ok {
-			fmt.Printf("Workspace %s not found", k)
+			fmt.Printf("Workspace %s not found\n", k)
 		} else {
-			fmt.Printf("Cleaning workspace %s", s.Key)
+			fmt.Printf("Cleaning workspace %s\n", s.Key)
 			cleanWorkspace(path, s)
 			delete(spec.Workspaces, s.Key)
 		}
@@ -270,7 +270,6 @@ func calculateDirecotySizeOrDie(path string) int64 {
 
 func updateSpecOrDie(path string, spec *Spec) {
 	result, err := json.Marshal(spec)
-	fmt.Printf(string(result))
 	if err != nil {
 		fmt.Printf("Failed to marshel spec into bytes with error: %s\n", err.Error())
 		os.Exit(1)
